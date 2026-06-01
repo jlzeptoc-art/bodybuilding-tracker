@@ -120,7 +120,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
     const url = getLink(text);
     if (url) {
       return (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="text-[var(--link)] underline">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="exercise-link">
           {text}
         </a>
       );
@@ -323,26 +323,27 @@ export function TrackerApp({ userId }: TrackerAppProps) {
               </div>
 
               <div className="day-tabs-scroll">
-                {days.map((d, i) => {
-                  const dayNum = i < 2 ? i + 1 : i - 1;
-                  const shortLabel = d.isRest
-                    ? "💤"
-                    : `D${dayNum}`;
-                  return (
-                    <button
-                      key={d.key}
-                      type="button"
-                      className={`day-tab ${i === dayIdx ? "active" : ""} ${d.isRest ? "rest-tab" : ""}`}
-                      onClick={() => setDayIndex(week, i)}
-                      title={d.label}
-                    >
-                      <span className="day-tab-short">{shortLabel}</span>
-                      <span className="day-tab-full">
-                        {d.isRest ? `💤 ${t("day.rest")}` : d.label.split("—")[0]?.trim() || d.label}
-                      </span>
-                    </button>
-                  );
-                })}
+                {(() => {
+                  let trainingDayNum = 0;
+                  return days.map((d, i) => {
+                    const dayNum = d.isRest ? null : (trainingDayNum += 1);
+                    const shortLabel = d.isRest ? "💤" : `D${dayNum}`;
+                    return (
+                      <button
+                        key={d.key}
+                        type="button"
+                        className={`day-tab ${i === dayIdx ? "active" : ""} ${d.isRest ? "rest-tab" : ""}`}
+                        onClick={() => setDayIndex(week, i)}
+                        title={d.label}
+                      >
+                        <span className="day-tab-short">{shortLabel}</span>
+                        <span className="day-tab-full">
+                          {d.isRest ? `💤 ${t("day.rest")}` : d.label.split("—")[0]?.trim() || d.label}
+                        </span>
+                      </button>
+                    );
+                  });
+                })()}
               </div>
 
               {!day.isRest && (

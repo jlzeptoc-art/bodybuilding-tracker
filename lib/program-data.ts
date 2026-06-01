@@ -136,8 +136,36 @@ export const EX_LINKS: Record<string, string> = {
   "Wide-Grip Pull-Up": "https://youtu.be/yGnp0HU8BnA?si=g9lS7YfxwnBQ5gbR",
 };
 
+const EX_LINK_ALIASES: Record<string, string> = {
+  "balanceos de brazos": "Arm Swings",
+  "circulos de brazos": "Arm Circles",
+  "balanceos de pierna adelante-atras": "Front-to-Back Leg Swings",
+  "balanceos de pierna lateral": "Side-to-Side Leg Swings",
+  "rotacion externa en polea (opcional)": "Cable External Rotation (optional)",
+};
+
+function normalizeLinkName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 export function getLink(name: string): string | null {
-  return (EX_LINKS as Record<string, string>)[name] || null;
+  const direct = (EX_LINKS as Record<string, string>)[name];
+  if (direct) return direct;
+
+  const normalized = normalizeLinkName(name);
+  const canonical = EX_LINK_ALIASES[normalized];
+  if (canonical) return EX_LINKS[canonical] || null;
+
+  const matchingName = Object.keys(EX_LINKS).find(
+    (linkName) => normalizeLinkName(linkName) === normalized
+  );
+  return matchingName ? EX_LINKS[matchingName] : null;
 }
 
 export function exName(name) {

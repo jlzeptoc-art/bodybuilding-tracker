@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWeightUnit } from "@/components/WeightUnitProvider";
+import { useUiSettings } from "@/components/UiSettingsProvider";
 
 type HeaderProps = {
   saveStatus: string;
@@ -15,9 +16,11 @@ export function Header({ saveStatus, onReset }: HeaderProps) {
   const { t, locale, setLocale } = useI18n();
   const { cycleMode, mode } = useTheme();
   const { unit, toggleUnit } = useWeightUnit();
+  const { scale, cycleScale } = useUiSettings();
   const router = useRouter();
 
   const themeIcon = mode === "light" ? "☀" : mode === "dark" ? "☾" : "◐";
+  const scaleLabel = scale === "standard" ? "A" : scale === "large" ? "A+" : "A++";
   const isSaved = saveStatus === t("save.saved");
 
   async function logout() {
@@ -60,6 +63,15 @@ export function Header({ saveStatus, onReset }: HeaderProps) {
             title={t("unit.toggle")}
           >
             {unit}
+          </button>
+          <button
+            type="button"
+            className="icon-btn scale-toggle"
+            onClick={cycleScale}
+            aria-label={t("ui.scale.toggle")}
+            title={t(`ui.scale.${scale}`)}
+          >
+            {scaleLabel}
           </button>
           <button
             type="button"
