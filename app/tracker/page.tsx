@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { TrackerApp } from "@/components/TrackerApp";
 
@@ -8,7 +7,5 @@ export default async function TrackerPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
-
-  return <TrackerApp userId={user.id} />;
+  return <TrackerApp userId={user?.id ?? null} />;
 }

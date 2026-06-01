@@ -13,7 +13,9 @@ import {
   clearAllData,
   flushSave,
   importLocalLegacy,
+  loadGuestData,
   loadFromSupabase,
+  setOnSaveError,
   setOnSaved,
   setStorageUser,
   wasLocalMigrated,
@@ -22,7 +24,7 @@ import {
 import { notifyStorageUpdate } from "@/components/SetInputs";
 
 type TrackerAppProps = {
-  userId: string;
+  userId: string | null;
 };
 
 type SectionKey = "overview" | "notes" | "warmup" | `week-${number}`;
@@ -30,7 +32,7 @@ type SectionKey = "overview" | "notes" | "warmup" | `week-${number}`;
 export function TrackerApp({ userId }: TrackerAppProps) {
   const { t, locale } = useI18n();
   const [section, setSection] = useState<SectionKey>("overview");
-  const [saveStatus, setSaveStatus] = useState("");
+  const [saveStatusKey, setSaveStatusKey] = useState<"auto" | "saved" | "error">("auto");
   const [ready, setReady] = useState(false);
   const [dayIndexByWeek, setDayIndexByWeek] = useState<Record<number, number>>({});
   const [storageTick, setStorageTick] = useState(0);
@@ -38,9 +40,13 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   const notes = locale === "es" ? notesEs : notesEn;
   const warmup = locale === "es" ? warmupEs : warmupEn;
 
-  useEffect(() => {
-    setSaveStatus(t("save.auto"));
-  }, [t]);
+  const saveStatus = t(
+    saveStatusKey === "saved"
+      ? "save.saved"
+      : saveStatusKey === "error"
+        ? "save.error"
+        : "save.auto"
+  );
 
   useEffect(() => {
     const onUpdate = () => setStorageTick((n) => n + 1);
@@ -51,14 +57,22 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   useEffect(() => {
     setStorageUser(userId);
     setOnSaved(() => {
-      setSaveStatus(t("save.saved"));
-      setTimeout(() => setSaveStatus(t("save.auto")), 1200);
+      setSaveStatusKey("saved");
+      setTimeout(() => setSaveStatusKey("auto"), 1200);
+    });
+    setOnSaveError(() => {
+      setSaveStatusKey("error");
     });
 
     (async () => {
       try {
-        await loadFromSupabase(userId);
-        if (!wasLocalMigrated() && getLocalLegacyData()) {
+        if (userId) {
+          await loadFromSupabase(userId);
+        } else {
+          loadGuestData();
+        }
+
+        if (userId && !wasLocalMigrated() && getLocalLegacyData()) {
           if (window.confirm(t("confirm.import"))) {
             await importLocalLegacy();
           } else {
@@ -79,6 +93,8 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   }, [userId, t]);
 
   const overview = useMemo(() => {
+    // loadVal reads a module cache; storageTick is the explicit recompute signal.
+    void storageTick;
     let totalSets = 0;
     let filledSets = 0;
     const weekData: Record<number, number> = {};
@@ -105,7 +121,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
 
     const pct = totalSets ? Math.round((filledSets / totalSets) * 100) : 0;
     return { totalSets, filledSets, pct, weekData };
-  }, [t, section, ready, storageTick]);
+  }, [t, storageTick]);
 
   const handleReset = useCallback(async () => {
     if (!window.confirm(t("confirm.reset"))) return;
@@ -120,7 +136,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
     const url = getLink(text);
     if (url) {
       return (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="text-[var(--link)] underline">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="exercise-link">
           {text}
         </a>
       );
@@ -142,7 +158,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
 
   return (
     <>
-      <Header saveStatus={saveStatus} onReset={handleReset} />
+      <Header saveStatus={saveStatus} onReset={handleReset} isGuest={!userId} />
 
       <nav className="nav-bar">
         <button
@@ -323,26 +339,27 @@ export function TrackerApp({ userId }: TrackerAppProps) {
               </div>
 
               <div className="day-tabs-scroll">
-                {days.map((d, i) => {
-                  const dayNum = i < 2 ? i + 1 : i - 1;
-                  const shortLabel = d.isRest
-                    ? "💤"
-                    : `D${dayNum}`;
-                  return (
-                    <button
-                      key={d.key}
-                      type="button"
-                      className={`day-tab ${i === dayIdx ? "active" : ""} ${d.isRest ? "rest-tab" : ""}`}
-                      onClick={() => setDayIndex(week, i)}
-                      title={d.label}
-                    >
-                      <span className="day-tab-short">{shortLabel}</span>
-                      <span className="day-tab-full">
-                        {d.isRest ? `💤 ${t("day.rest")}` : d.label.split("—")[0]?.trim() || d.label}
-                      </span>
-                    </button>
-                  );
-                })}
+                {(() => {
+                  let trainingDayNum = 0;
+                  return days.map((d, i) => {
+                    const dayNum = d.isRest ? null : (trainingDayNum += 1);
+                    const shortLabel = d.isRest ? "💤" : `D${dayNum}`;
+                    return (
+                      <button
+                        key={d.key}
+                        type="button"
+                        className={`day-tab ${i === dayIdx ? "active" : ""} ${d.isRest ? "rest-tab" : ""}`}
+                        onClick={() => setDayIndex(week, i)}
+                        title={d.label}
+                      >
+                        <span className="day-tab-short">{shortLabel}</span>
+                        <span className="day-tab-full">
+                          {d.isRest ? `💤 ${t("day.rest")}` : d.label.split("—")[0]?.trim() || d.label}
+                        </span>
+                      </button>
+                    );
+                  });
+                })()}
               </div>
 
               {!day.isRest && (

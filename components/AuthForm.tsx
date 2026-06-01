@@ -83,6 +83,13 @@ export function AuthForm({ mode }: AuthFormProps) {
     }
   }
 
+  function continueAsGuest() {
+    router.push("/tracker");
+  }
+
+  const usernameId = `${mode}-username`;
+  const passwordId = `${mode}-password`;
+
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -92,10 +99,14 @@ export function AuthForm({ mode }: AuthFormProps) {
         <p className="text-sm text-[var(--text-dim)] mb-6">{t("app.subtitle")}</p>
 
         <form onSubmit={handleSubmit}>
-          <label className="text-xs uppercase font-display font-bold text-[var(--text-dim)]">
+          <label
+            className="text-xs uppercase font-display font-bold text-[var(--text-dim)]"
+            htmlFor={usernameId}
+          >
             {t("auth.username")}
           </label>
           <input
+            id={usernameId}
             type="text"
             required
             value={username}
@@ -111,10 +122,14 @@ export function AuthForm({ mode }: AuthFormProps) {
             <p className="text-xs text-[var(--text-dim)] mb-3 -mt-1">{t("auth.usernameHint")}</p>
           )}
 
-          <label className="text-xs uppercase font-display font-bold text-[var(--text-dim)]">
+          <label
+            className="text-xs uppercase font-display font-bold text-[var(--text-dim)]"
+            htmlFor={passwordId}
+          >
             {t("auth.password")}
           </label>
           <input
+            id={passwordId}
             type="password"
             required
             minLength={6}
@@ -133,6 +148,17 @@ export function AuthForm({ mode }: AuthFormProps) {
             {loading ? t("auth.loading") : mode === "login" ? t("btn.login") : t("btn.register")}
           </button>
         </form>
+
+        <button
+          type="button"
+          className="btn btn-ghost w-full mt-3"
+          onClick={continueAsGuest}
+        >
+          {t("auth.continueGuest")}
+        </button>
+        <p className="text-xs text-center mt-2 text-[var(--text-dim)]">
+          {t("auth.guestHint")}
+        </p>
 
         <p className="text-sm text-center mt-6 text-[var(--text-dim)]">
           {mode === "login" ? t("auth.noAccount") : t("auth.hasAccount")}{" "}

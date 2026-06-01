@@ -42,6 +42,39 @@
   --progress-to: #fbbf24;
 }
 
+:root {
+  --base-font-size: 15px;
+  --main-max-width: 1680px;
+  --exercise-table-min-width: 1945px;
+  --exercise-table-font-size: 13px;
+  --exercise-table-header-font-size: 11px;
+  --exercise-table-cell-padding: 10px;
+  --set-input-width: 48px;
+  --set-input-height: 36px;
+}
+
+[data-ui-scale="standard"] {
+  --base-font-size: 14px;
+  --main-max-width: 1500px;
+  --exercise-table-min-width: 1780px;
+  --exercise-table-font-size: 12px;
+  --exercise-table-header-font-size: 10px;
+  --exercise-table-cell-padding: 8px;
+  --set-input-width: 42px;
+  --set-input-height: 34px;
+}
+
+[data-ui-scale="xlarge"] {
+  --base-font-size: 16px;
+  --main-max-width: 1840px;
+  --exercise-table-min-width: 2080px;
+  --exercise-table-font-size: 14px;
+  --exercise-table-header-font-size: 12px;
+  --exercise-table-cell-padding: 12px;
+  --set-input-width: 54px;
+  --set-input-height: 40px;
+}
+
 @theme inline {
   --font-sans: 'Barlow', system-ui, sans-serif;
   --font-display: 'Barlow Condensed', system-ui, sans-serif;
@@ -62,7 +95,7 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   font-family: 'Barlow', sans-serif;
-  font-size: 14px;
+  font-size: var(--base-font-size);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   overflow-x: hidden;
@@ -206,9 +239,9 @@ body {
 }
 
 .main-content {
-  padding: 12px;
+  padding: 14px;
   padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 16px));
-  max-width: 1400px;
+  max-width: var(--main-max-width);
   margin: 0 auto;
   width: 100%;
 }
@@ -264,8 +297,8 @@ body {
 .day-tab {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
-  font-size: 12px;
-  padding: 10px 14px;
+  font-size: 13px;
+  padding: 11px 15px;
   min-height: 44px;
   min-width: 44px;
   border: 1px solid var(--border);
@@ -332,6 +365,10 @@ body {
 .exercise-table-wrap {
   overflow-x: auto;
   display: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-card);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--shadow) 55%, transparent);
 }
 
 @media (min-width: 768px) {
@@ -362,16 +399,24 @@ body {
 
 .exercise-card .ex-title {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.35;
   margin-bottom: 10px;
   word-break: break-word;
 }
 
-.exercise-card .ex-title a {
+.exercise-link {
   color: var(--link);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+
+.exercise-link:hover,
+.exercise-link:focus-visible {
+  color: var(--accent);
+  text-decoration-thickness: 2px;
 }
 
 .exercise-card .chips {
@@ -491,30 +536,37 @@ body {
   text-transform: lowercase;
 }
 
+.scale-toggle {
+  min-width: 42px;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+}
+
 .set-cell-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .set-cell-inputs {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
   justify-content: center;
 }
 
 .set-cell-inputs .set-weight-field {
-  gap: 2px;
+  gap: 4px;
 }
 
 .set-cell-inputs .set-unit {
-  font-size: 8px;
+  font-size: 9px;
 }
 
 .set-last-badge-table {
-  font-size: 8px;
+  font-size: 9px;
   color: var(--accent);
   text-transform: uppercase;
   font-weight: 700;
@@ -548,9 +600,6 @@ body {
   word-break: break-word;
 }
 
-.ex-subs-list a {
-  color: var(--link);
-}
 
 .ex-notes {
   margin-top: 12px;
@@ -562,15 +611,58 @@ body {
 table.exercise-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  table-layout: fixed;
+  min-width: var(--exercise-table-min-width);
+}
+
+table.exercise-table .col-exercise {
+  width: 220px;
+}
+
+table.exercise-table .col-technique {
+  width: 110px;
+}
+
+table.exercise-table .col-warmup {
+  width: 100px;
+}
+
+table.exercise-table .col-working {
+  width: 105px;
+}
+
+table.exercise-table .col-reps {
+  width: 90px;
+}
+
+table.exercise-table .col-set {
+  width: 135px;
+}
+
+table.exercise-table .col-rpe {
+  width: 105px;
+}
+
+table.exercise-table .col-rest {
+  width: 110px;
+}
+
+table.exercise-table .col-sub {
+  width: 160px;
+}
+
+table.exercise-table .col-notes {
+  width: 240px;
 }
 
 table.exercise-table th,
 table.exercise-table td {
-  padding: 8px;
+  padding: var(--exercise-table-cell-padding);
   border: 1px solid var(--border);
   text-align: center;
-  font-size: 12px;
+  font-size: var(--exercise-table-font-size);
+  line-height: 1.35;
+  vertical-align: middle;
 }
 
 table.exercise-table thead th {
@@ -578,18 +670,27 @@ table.exercise-table thead th {
   color: var(--text-dim);
   font-family: 'Barlow Condensed', sans-serif;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: var(--exercise-table-header-font-size);
+  letter-spacing: 0.4px;
+}
+
+table.exercise-table tbody td {
+  background: var(--bg-card);
+}
+
+table.exercise-table td:first-child {
+  font-size: calc(var(--exercise-table-font-size) + 1px);
 }
 
 .set-input {
-  width: 40px;
-  min-height: 32px;
+  width: var(--set-input-width);
+  min-height: var(--set-input-height);
   background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: 4px;
   color: var(--text-primary);
   text-align: center;
-  font-size: 12px;
+  font-size: var(--exercise-table-font-size);
 }
 
 .set-input:focus {
@@ -763,12 +864,12 @@ table.exercise-table thead th {
   }
 
   .main-content {
-    padding: 16px;
+    padding: 20px;
   }
 
   .nav-tab {
-    font-size: 12px;
-    padding: 12px 14px;
+    font-size: 13px;
+    padding: 12px 16px;
   }
 
   .nav-block-label {

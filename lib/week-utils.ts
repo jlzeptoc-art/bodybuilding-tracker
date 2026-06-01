@@ -12,15 +12,17 @@ export function getLocalizedWeekDays(week: number, t: TFn): WeekDay[] {
     legs: t("day.legs"),
   };
 
-  return days.map((day, i) => {
+  let trainingDayNum = 0;
+
+  return days.map((day) => {
     if (day.isRest) {
       return { ...day, label: t("day.rest") };
     }
-    const dayNum = i < 2 ? i + 1 : i - 1;
+    trainingDayNum += 1;
     const typeLabel = dayLabels[day.key] || day.key;
     return {
       ...day,
-      label: `${t("day.label", { n: dayNum })} — ${typeLabel}`,
+      label: `${t("day.label", { n: trainingDayNum })} — ${typeLabel}`,
     };
   });
 }

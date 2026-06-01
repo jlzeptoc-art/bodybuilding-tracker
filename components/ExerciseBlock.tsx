@@ -25,7 +25,7 @@ export function ExerciseBlock({
   const link = getLink(ex.name);
 
   const nameEl = link ? (
-    <a href={link} target="_blank" rel="noopener noreferrer">
+    <a href={link} target="_blank" rel="noopener noreferrer" className="exercise-link">
       {ex.name}
     </a>
   ) : (
@@ -36,7 +36,7 @@ export function ExerciseBlock({
     if (!name) return "—";
     const l = getLink(name);
     return l ? (
-      <a href={l} target="_blank" rel="noopener noreferrer">
+      <a href={l} target="_blank" rel="noopener noreferrer" className="exercise-link">
         {name}
       </a>
     ) : (
@@ -87,6 +87,23 @@ export function ExerciseBlock({
 
       <div className="exercise-table-wrap">
         <table className="exercise-table">
+          <colgroup>
+            <col className="col-exercise" />
+            <col className="col-technique" />
+            <col className="col-warmup" />
+            <col className="col-working" />
+            <col className="col-reps" />
+            <col className="col-set" />
+            <col className="col-set" />
+            <col className="col-set" />
+            <col className="col-set" />
+            <col className="col-rpe" />
+            <col className="col-rpe" />
+            <col className="col-rest" />
+            <col className="col-sub" />
+            <col className="col-sub" />
+            <col className="col-notes" />
+          </colgroup>
           <thead>
             <tr>
               <th rowSpan={2} className="text-left">

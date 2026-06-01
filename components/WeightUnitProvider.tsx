@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useState,
 } from "react";
 import {
@@ -22,11 +21,7 @@ type WeightUnitContextValue = {
 const WeightUnitContext = createContext<WeightUnitContextValue | null>(null);
 
 export function WeightUnitProvider({ children }: { children: React.ReactNode }) {
-  const [unit, setUnitState] = useState<WeightUnit>("kg");
-
-  useEffect(() => {
-    setUnitState(getStoredWeightUnit());
-  }, []);
+  const [unit, setUnitState] = useState<WeightUnit>(() => getStoredWeightUnit());
 
   const setUnit = useCallback((next: WeightUnit) => {
     setStoredWeightUnit(next);

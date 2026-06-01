@@ -8,5 +8,5 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
 
   if (user) redirect("/tracker");
-  redirect("/login");
+  redirect("/tracker");
 }
