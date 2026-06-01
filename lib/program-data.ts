@@ -287,6 +287,7 @@ export function rampingLowerStrength(week) {
   const w = week;
   const wSets1 = w == 6 ? 1 : (w >= 7 ? 2 : 2);
   const wSets2 = w == 6 ? 1 : 3;
+  const earlyRPE = w == 6 ? 'N/A' : '~7-8';
   const lastRPE_n = w == 6 ? '~7' : (w >= 7 ? '~8-9' : '~8-9');
   const failure = w >= 7;
   return [
@@ -319,6 +320,7 @@ export function rampingPushHypertrophy(week) {
   const w = week;
   const wSets1 = w == 6 ? 1 : 2;
   const wSets2 = w == 6 ? 1 : 3;
+  const earlyRPE = w == 6 ? 'N/A' : '~7-8';
   const failure = w >= 7;
   return [
     { name: 'Machine Chest Press', warmup: '2-4', working: wSets2, reps: '10-12', technique: 'N/A', earlyRPE, lastRPE: w==6?'~6':'~7-8', rest: '3-5 min', sub1: 'Barbell Bench Press', sub2: 'DB Bench Press', notes: '1 second pause at the bottom of each rep while maintaining tension on the pecs.' },
@@ -335,6 +337,7 @@ export function rampingLegsHypertrophy(week) {
   const w = week;
   const wSets1 = w == 6 ? 1 : 2;
   const wSets2 = w == 6 ? 1 : 3;
+  const earlyRPE = w == 6 ? 'N/A' : '~7-8';
   const failure = w >= 7;
   return [
     { name: 'Hack Squat', warmup: '2-4', working: wSets2, reps: '10-12', technique: 'N/A', earlyRPE, lastRPE: w==6?'~6':'~7-8', rest: '2-3 min', sub1: 'Leg Press', sub2: 'DB Walking Lunge', notes: 'Use a controlled negative (don\'t free fall) and then explode on the positive.' },
