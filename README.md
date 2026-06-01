@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bodybuilding Transformation Tracker
 
-## Getting Started
+Tracker web para el programa de 12 semanas de Jeff Nippard (BTS). Diseñado para usar en el gimnasio desde el celular, con cuentas individuales y sincronización en la nube.
 
-First, run the development server:
+## Características
+
+- **Mobile-first**: tarjetas grandes por ejercicio en pantallas pequeñas; tabla completa en desktop
+- **Cuentas**: registro e inicio de sesión con Supabase (cada usuario ve solo su progreso)
+- **Temas**: claro / oscuro / sistema (sin paleta verde)
+- **Idiomas**: inglés y español
+- **Auto-guardado**: peso y reps por serie, sincronizados con tu cuenta
+
+## Requisitos
+
+- Node.js 20+
+- Cuenta en [Supabase](https://supabase.com) (plan gratuito)
+- Cuenta en [Vercel](https://vercel.com) para desplegar
+- [GitHub CLI](https://cli.github.com/) (`gh`) para publicar el repo (opcional)
+
+## 1. Configurar Supabase
+
+1. Crea un proyecto en Supabase.
+2. En **SQL Editor**, ejecuta el contenido de [`supabase/schema.sql`](supabase/schema.sql).
+3. En **Authentication → Providers**, deja habilitado **Email**.
+4. Para que tus amigos entren sin confirmar correo (solo desarrollo/pruebas): **Authentication → Settings** → desactiva *Confirm email*. En producción puedes dejarlo activo.
+5. En **Authentication → URL Configuration**, añade:
+   - `http://localhost:3000/**`
+   - `https://tu-app.vercel.app/**` (después del deploy)
+6. Copia **Project URL** y **anon public key** desde **Settings → API**.
+
+## 2. Variables de entorno
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edita `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbG...
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 3. Desarrollo local
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Abre [http://localhost:3000](http://localhost:3000), regístrate e inicia sesión.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Importar datos del HTML antiguo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Si antes usabas `legacy/bodybuilding-tracker.html` en el mismo navegador, al entrar por primera vez te preguntará si quieres importar el progreso guardado en `localStorage`.
 
-## Deploy on Vercel
+## 4. Desplegar en Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Sube el código a GitHub (ver abajo).
+2. En [vercel.com/new](https://vercel.com/new), importa el repo `bodybuilding-tracker`.
+3. Añade las mismas variables `NEXT_PUBLIC_SUPABASE_*` en **Environment Variables**.
+4. Deploy. Copia la URL de producción y actualízala en Supabase (URL Configuration).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 5. Publicar en GitHub
+
+```bash
+gh repo create bodybuilding-tracker --public --source=. --remote=origin --push
+```
+
+Si el remoto ya existe:
+
+```bash
+git remote add origin https://github.com/TU_USUARIO/bodybuilding-tracker.git
+git push -u origin main
+```
+
+## Estructura
+
+| Ruta | Descripción |
+|------|-------------|
+| `/login` | Inicio de sesión |
+| `/register` | Crear cuenta |
+| `/tracker` | App principal (requiere sesión) |
+
+## Stack
+
+- Next.js 16 (App Router)
+- Supabase Auth + PostgreSQL (JSONB por usuario)
+- Tailwind CSS 4
+
+## Licencia
+
+Uso personal / entre amigos. El contenido del programa pertenece a Jeff Nippard; este repo solo implementa un tracker no oficial.
