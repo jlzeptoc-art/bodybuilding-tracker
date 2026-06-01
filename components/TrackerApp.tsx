@@ -30,7 +30,7 @@ type SectionKey = "overview" | "notes" | "warmup" | `week-${number}`;
 export function TrackerApp({ userId }: TrackerAppProps) {
   const { t, locale } = useI18n();
   const [section, setSection] = useState<SectionKey>("overview");
-  const [saveStatus, setSaveStatus] = useState("");
+  const [saveStatusKey, setSaveStatusKey] = useState<"auto" | "saved">("auto");
   const [ready, setReady] = useState(false);
   const [dayIndexByWeek, setDayIndexByWeek] = useState<Record<number, number>>({});
   const [storageTick, setStorageTick] = useState(0);
@@ -38,9 +38,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   const notes = locale === "es" ? notesEs : notesEn;
   const warmup = locale === "es" ? warmupEs : warmupEn;
 
-  useEffect(() => {
-    setSaveStatus(t("save.auto"));
-  }, [t]);
+  const saveStatus = t(saveStatusKey === "saved" ? "save.saved" : "save.auto");
 
   useEffect(() => {
     const onUpdate = () => setStorageTick((n) => n + 1);
@@ -51,8 +49,8 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   useEffect(() => {
     setStorageUser(userId);
     setOnSaved(() => {
-      setSaveStatus(t("save.saved"));
-      setTimeout(() => setSaveStatus(t("save.auto")), 1200);
+      setSaveStatusKey("saved");
+      setTimeout(() => setSaveStatusKey("auto"), 1200);
     });
 
     (async () => {

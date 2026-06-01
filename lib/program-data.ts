@@ -1,4 +1,5 @@
 // Auto-extracted from legacy tracker
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 export type Exercise = {
   name: string;

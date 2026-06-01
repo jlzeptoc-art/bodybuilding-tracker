@@ -35,13 +35,11 @@ function applyScale(scale: UiScale) {
 }
 
 export function UiSettingsProvider({ children }: { children: React.ReactNode }) {
-  const [scale, setScaleState] = useState<UiScale>(DEFAULT_SCALE);
+  const [scale, setScaleState] = useState<UiScale>(() => getStoredScale());
 
   useEffect(() => {
-    const stored = getStoredScale();
-    setScaleState(stored);
-    applyScale(stored);
-  }, []);
+    applyScale(scale);
+  }, [scale]);
 
   const setScale = useCallback((next: UiScale) => {
     localStorage.setItem(STORAGE_KEY, next);

@@ -2,9 +2,12 @@
  * Re-import EX_LINKS from the official Excel spreadsheet.
  * Usage: node scripts/import-ex-links.mjs "/path/to/file.xlsx"
  */
-const XLSX = require("xlsx");
-const fs = require("fs");
-const path = require("path");
+import XLSX from "xlsx";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const xlsxPath =
   process.argv[2] ||

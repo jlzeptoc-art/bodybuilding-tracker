@@ -25,14 +25,13 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>("system");
-  const [resolved, setResolved] = useState<"light" | "dark">("dark");
+  const [mode, setModeState] = useState<ThemeMode>(() => getStoredTheme());
+  const [resolved, setResolved] = useState<"light" | "dark">(() =>
+    resolveTheme(getStoredTheme())
+  );
 
   useEffect(() => {
-    const stored = getStoredTheme();
-    setModeState(stored);
-    applyTheme(stored);
-    setResolved(resolveTheme(stored));
+    applyTheme(mode);
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
@@ -43,7 +42,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
-  }, []);
+  }, [mode]);
 
   const setMode = useCallback((m: ThemeMode) => {
     setStoredTheme(m);
