@@ -93,6 +93,8 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   }, [userId, t]);
 
   const overview = useMemo(() => {
+    // loadVal reads a module cache; storageTick is the explicit recompute signal.
+    void storageTick;
     let totalSets = 0;
     let filledSets = 0;
     const weekData: Record<number, number> = {};
@@ -119,7 +121,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
 
     const pct = totalSets ? Math.round((filledSets / totalSets) * 100) : 0;
     return { totalSets, filledSets, pct, weekData };
-  }, [t, section, ready, storageTick]);
+  }, [t, storageTick]);
 
   const handleReset = useCallback(async () => {
     if (!window.confirm(t("confirm.reset"))) return;

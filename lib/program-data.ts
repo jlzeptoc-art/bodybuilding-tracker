@@ -272,16 +272,6 @@ export function foundationLegsHypertrophy(week) {
 // Ramping Block Days (Weeks 6–12)
 export function rampingUpperStrength(week) {
   const w = week;
-  const wSets = w == 6 ? 1 : (w >= 7 ? 2 : 2);
-  const earlyRPE = w == 6 ? 'N/A' : '~7-8';
-  const lastRPE = w == 6 ? '~6' : (w >= 7 ? '~7-8' : '~7-8');
-  const failureExes = w >= 7 ? ['High-Cable Lateral Raise','Overhead Cable Triceps Extension (Bar)','Bayesian Cable Curl'] : [];
-  
-  function tech(name) { return failureExes.includes(name) ? 'Failure' : 'N/A'; }
-  function er(name) { return failureExes.includes(name) ? (w >= 7 ? '~8-9' : 'N/A') : earlyRPE; }
-  function lr(name) { return failureExes.includes(name) ? (w >= 7 ? '10' : '~7') : (w == 6 ? '~6' : '~7-8'); }
-
-  const highLR = w == 6 ? '~7' : (w >= 7 ? '~8-9' : '~8-9');
   return [
     { name: '45° Incline DB Press', warmup: '2-3', working: w == 6 ? 1 : 3, reps: '8-10', technique: 'N/A', earlyRPE: w==6?'N/A':'~7-8', lastRPE: w==6?'~6':'~7-8', rest: '3-5 min', sub1: '45° Incline Barbell Press', sub2: '45° Incline Machine Press', notes: '1 second pause at the bottom of each rep while maintaining tension on the pecs.' },
     { name: 'Pec Deck', warmup: '1-2', working: w == 6 ? 1 : 2, reps: '10-12', technique: 'N/A', earlyRPE: w==6?'N/A':'~7-8', lastRPE: w==6?'~7':'~8-9', rest: '1-2 min', sub1: 'Cable Crossover Ladder', sub2: 'Bottom-Half DB Flye', notes: 'Focus on bringing your elbows together — not your hands.' },
@@ -297,9 +287,7 @@ export function rampingLowerStrength(week) {
   const w = week;
   const wSets1 = w == 6 ? 1 : (w >= 7 ? 2 : 2);
   const wSets2 = w == 6 ? 1 : 3;
-  const earlyRPE = w == 6 ? 'N/A' : '~7-8';
   const lastRPE_n = w == 6 ? '~7' : (w >= 7 ? '~8-9' : '~8-9');
-  const lastRPE_f = w >= 7 ? '10' : (w == 6 ? '~7' : '~7-8');
   const failure = w >= 7;
   return [
     { name: 'Lying Leg Curl', warmup: '2', working: wSets1, reps: '10-12', technique: 'N/A', earlyRPE, lastRPE: w==6?'~7':'~8-9', rest: '1-2 min', sub1: 'Seated Leg Curl', sub2: 'Nordic Ham Curl', notes: 'Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl.' },
@@ -331,7 +319,6 @@ export function rampingPushHypertrophy(week) {
   const w = week;
   const wSets1 = w == 6 ? 1 : 2;
   const wSets2 = w == 6 ? 1 : 3;
-  const earlyRPE = w == 6 ? 'N/A' : '~7-8';
   const failure = w >= 7;
   return [
     { name: 'Machine Chest Press', warmup: '2-4', working: wSets2, reps: '10-12', technique: 'N/A', earlyRPE, lastRPE: w==6?'~6':'~7-8', rest: '3-5 min', sub1: 'Barbell Bench Press', sub2: 'DB Bench Press', notes: '1 second pause at the bottom of each rep while maintaining tension on the pecs.' },
@@ -348,7 +335,6 @@ export function rampingLegsHypertrophy(week) {
   const w = week;
   const wSets1 = w == 6 ? 1 : 2;
   const wSets2 = w == 6 ? 1 : 3;
-  const earlyRPE = w == 6 ? 'N/A' : '~7-8';
   const failure = w >= 7;
   return [
     { name: 'Hack Squat', warmup: '2-4', working: wSets2, reps: '10-12', technique: 'N/A', earlyRPE, lastRPE: w==6?'~6':'~7-8', rest: '2-3 min', sub1: 'Leg Press', sub2: 'DB Walking Lunge', notes: 'Use a controlled negative (don\'t free fall) and then explode on the positive.' },
