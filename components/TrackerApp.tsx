@@ -32,6 +32,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   const [saveStatus, setSaveStatus] = useState("");
   const [ready, setReady] = useState(false);
   const [dayIndexByWeek, setDayIndexByWeek] = useState<Record<number, number>>({});
+  const [storageTick, setStorageTick] = useState(0);
 
   const notes = locale === "es" ? notesEs : notesEn;
   const warmup = locale === "es" ? warmupEs : warmupEn;
@@ -39,6 +40,12 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   useEffect(() => {
     setSaveStatus(t("save.auto"));
   }, [t]);
+
+  useEffect(() => {
+    const onUpdate = () => setStorageTick((n) => n + 1);
+    window.addEventListener("bts-storage-update", onUpdate);
+    return () => window.removeEventListener("bts-storage-update", onUpdate);
+  }, []);
 
   useEffect(() => {
     setStorageUser(userId);
@@ -97,7 +104,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
 
     const pct = totalSets ? Math.round((filledSets / totalSets) * 100) : 0;
     return { totalSets, filledSets, pct, weekData };
-  }, [t, section, ready]);
+  }, [t, section, ready, storageTick]);
 
   const handleReset = useCallback(async () => {
     if (!window.confirm(t("confirm.reset"))) return;
