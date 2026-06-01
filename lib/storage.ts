@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 
 const LOCAL_KEY = "bts_tracker";
 const LOCAL_MIGRATED_KEY = "bts_tracker_migrated";
+const GUEST_KEY = "bts_tracker_guest";
 
 let cache: Record<string, string> = {};
 let userId: string | null = null;
@@ -11,7 +12,7 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let onSaved: (() => void) | null = null;
 let dirty = false;
 
-export function setStorageUser(id: string) {
+export function setStorageUser(id: string | null) {
   userId = id;
 }
 
@@ -47,6 +48,22 @@ export async function loadFromSupabase(uid: string): Promise<Record<string, stri
   return cache;
 }
 
+export function loadGuestData(): Record<string, string> {
+  if (typeof window === "undefined") {
+    cache = {};
+    return cache;
+  }
+
+  try {
+    const raw = localStorage.getItem(GUEST_KEY) || localStorage.getItem(LOCAL_KEY);
+    cache = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    cache = {};
+  }
+
+  return cache;
+}
+
 export function loadVal(key: string): string {
   return cache[key] || "";
 }
@@ -59,8 +76,15 @@ export function saveVal(key: string, value: string) {
 }
 
 async function persist() {
-  if (!userId || !dirty) return;
+  if (!dirty) return;
   dirty = false;
+
+  if (!userId) {
+    localStorage.setItem(GUEST_KEY, JSON.stringify(cache));
+    onSaved?.();
+    return;
+  }
+
   const supabase = createClient();
   const { error } = await supabase.from("tracker_data").upsert({
     user_id: userId,
@@ -92,7 +116,7 @@ export async function clearAllData() {
 export function getLocalLegacyData(): Record<string, string> | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(LOCAL_KEY);
+    const raw = localStorage.getItem(GUEST_KEY) || localStorage.getItem(LOCAL_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as Record<string, string>;
   } catch {
@@ -107,6 +131,7 @@ export function wasLocalMigrated(): boolean {
 
 export function markLocalMigrated() {
   localStorage.setItem(LOCAL_MIGRATED_KEY, "1");
+  localStorage.removeItem(GUEST_KEY);
   localStorage.removeItem(LOCAL_KEY);
 }
 

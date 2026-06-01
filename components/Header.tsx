@@ -10,9 +10,10 @@ import { useUiSettings } from "@/components/UiSettingsProvider";
 type HeaderProps = {
   saveStatus: string;
   onReset: () => void;
+  isGuest?: boolean;
 };
 
-export function Header({ saveStatus, onReset }: HeaderProps) {
+export function Header({ saveStatus, onReset, isGuest = false }: HeaderProps) {
   const { t, locale, setLocale } = useI18n();
   const { cycleMode, mode } = useTheme();
   const { unit, toggleUnit } = useWeightUnit();
@@ -24,6 +25,11 @@ export function Header({ saveStatus, onReset }: HeaderProps) {
   const isSaved = saveStatus === t("save.saved");
 
   async function logout() {
+    if (isGuest) {
+      router.push("/login");
+      return;
+    }
+
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
@@ -51,7 +57,9 @@ export function Header({ saveStatus, onReset }: HeaderProps) {
           aria-live="polite"
         >
           <span className="save-dot" aria-hidden />
-          <span className="save-label">{saveStatus}</span>
+          <span className="save-label">
+            {isGuest ? `${t("auth.guestMode")} · ${saveStatus}` : saveStatus}
+          </span>
         </span>
 
         <div className="header-icon-group">
@@ -107,7 +115,7 @@ export function Header({ saveStatus, onReset }: HeaderProps) {
             <span className="logout-short" aria-hidden>
               ⎋
             </span>
-            <span className="logout-full">{t("btn.logout")}</span>
+            <span className="logout-full">{isGuest ? t("btn.login") : t("btn.logout")}</span>
           </button>
         </div>
       </div>

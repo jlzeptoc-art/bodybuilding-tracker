@@ -13,6 +13,7 @@ import {
   clearAllData,
   flushSave,
   importLocalLegacy,
+  loadGuestData,
   loadFromSupabase,
   setOnSaved,
   setStorageUser,
@@ -22,7 +23,7 @@ import {
 import { notifyStorageUpdate } from "@/components/SetInputs";
 
 type TrackerAppProps = {
-  userId: string;
+  userId: string | null;
 };
 
 type SectionKey = "overview" | "notes" | "warmup" | `week-${number}`;
@@ -55,8 +56,13 @@ export function TrackerApp({ userId }: TrackerAppProps) {
 
     (async () => {
       try {
-        await loadFromSupabase(userId);
-        if (!wasLocalMigrated() && getLocalLegacyData()) {
+        if (userId) {
+          await loadFromSupabase(userId);
+        } else {
+          loadGuestData();
+        }
+
+        if (userId && !wasLocalMigrated() && getLocalLegacyData()) {
           if (window.confirm(t("confirm.import"))) {
             await importLocalLegacy();
           } else {
@@ -140,7 +146,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
 
   return (
     <>
-      <Header saveStatus={saveStatus} onReset={handleReset} />
+      <Header saveStatus={saveStatus} onReset={handleReset} isGuest={!userId} />
 
       <nav className="nav-bar">
         <button
