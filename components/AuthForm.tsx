@@ -3,8 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 import { useI18n } from "@/lib/i18n";
+import {
+  normalizeUsername,
+  usernameToAuthEmail,
+  validateUsername,
+} from "@/lib/auth-username";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -13,31 +18,51 @@ type AuthFormProps = {
 export function AuthForm({ mode }: AuthFormProps) {
   const { t } = useI18n();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    const validationKey = validateUsername(username);
+    if (validationKey) {
+      setError(t(validationKey));
+      return;
+    }
+
+    const normalized = normalizeUsername(username);
+    const authEmail = usernameToAuthEmail(normalized);
     setLoading(true);
     const supabase = createClient();
 
     try {
       if (mode === "register") {
+        const { data: available, error: rpcError } = await supabase.rpc(
+          "is_username_available",
+          { desired_username: normalized }
+        );
+
+        if (rpcError) {
+          console.warn("is_username_available RPC failed:", rpcError.message);
+        } else if (available === false) {
+          setError(t("auth.usernameTaken"));
+          return;
+        }
+
         const { error: signUpError } = await supabase.auth.signUp({
-          email,
+          email: authEmail,
           password,
           options: {
-            data: { username: username || email.split("@")[0] },
+            data: { username: normalized },
           },
         });
         if (signUpError) throw signUpError;
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: authEmail,
           password,
         });
         if (signInError) throw signInError;
@@ -45,7 +70,14 @@ export function AuthForm({ mode }: AuthFormProps) {
       router.push("/tracker");
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("auth.error"));
+      const msg = err instanceof Error ? err.message : t("auth.error");
+      if (/invalid login credentials/i.test(msg)) {
+        setError(t("auth.error"));
+      } else if (/already registered|already exists|duplicate/i.test(msg)) {
+        setError(t("auth.usernameTaken"));
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -60,29 +92,25 @@ export function AuthForm({ mode }: AuthFormProps) {
         <p className="text-sm text-[var(--text-dim)] mb-6">{t("app.subtitle")}</p>
 
         <form onSubmit={handleSubmit}>
-          {mode === "register" && (
-            <>
-              <label className="text-xs uppercase font-display font-bold text-[var(--text-dim)]">
-                {t("auth.username")}
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-              />
-            </>
-          )}
           <label className="text-xs uppercase font-display font-bold text-[var(--text-dim)]">
-            {t("auth.email")}
+            {t("auth.username")}
           </label>
           <input
-            type="email"
+            type="text"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            minLength={3}
+            maxLength={24}
+            pattern="[a-zA-Z0-9_]+"
           />
+          {mode === "register" && (
+            <p className="text-xs text-[var(--text-dim)] mb-3 -mt-1">{t("auth.usernameHint")}</p>
+          )}
+
           <label className="text-xs uppercase font-display font-bold text-[var(--text-dim)]">
             {t("auth.password")}
           </label>

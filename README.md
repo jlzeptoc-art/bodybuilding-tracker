@@ -5,7 +5,7 @@ Tracker web para el programa de 12 semanas de Jeff Nippard (BTS). Diseñado para
 ## Características
 
 - **Mobile-first**: tarjetas grandes por ejercicio en pantallas pequeñas; tabla completa en desktop
-- **Cuentas**: registro e inicio de sesión con Supabase (cada usuario ve solo su progreso)
+- **Cuentas**: registro con **usuario + contraseña** (sin correo visible)
 - **Temas**: claro / oscuro / sistema (sin paleta verde)
 - **Idiomas**: inglés y español
 - **Auto-guardado**: peso y reps por serie, sincronizados con tu cuenta
@@ -21,12 +21,13 @@ Tracker web para el programa de 12 semanas de Jeff Nippard (BTS). Diseñado para
 
 1. Crea un proyecto en Supabase.
 2. En **SQL Editor**, ejecuta el contenido de [`supabase/schema.sql`](supabase/schema.sql).
-3. En **Authentication → Providers**, deja habilitado **Email**.
-4. Para que tus amigos entren sin confirmar correo (solo desarrollo/pruebas): **Authentication → Settings** → desactiva *Confirm email*. En producción puedes dejarlo activo.
-5. En **Authentication → URL Configuration**, añade:
+3. En **Authentication → Providers**, deja habilitado **Email** (Supabase lo usa por detrás; los usuarios solo ven nombre de usuario).
+4. En **Authentication → Settings** → desactiva **Confirm email** para que el registro sea inmediato.
+5. Ejecuta también [`supabase/username-auth.sql`](supabase/username-auth.sql) si ya habías corrido `schema.sql` antes (añade la función `is_username_available`).
+6. En **Authentication → URL Configuration**, añade:
    - `http://localhost:3000/**`
    - `https://tu-app.vercel.app/**` (después del deploy)
-6. Copia **Project URL** y **anon public key** desde **Settings → API**.
+7. Copia **Project URL** y **publishable key** desde **Settings → API**.
 
 ## 2. Variables de entorno
 
@@ -38,7 +39,7 @@ Edita `.env.local`:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbG...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ```
 
 ## 3. Desarrollo local
@@ -58,7 +59,7 @@ Si antes usabas `legacy/bodybuilding-tracker.html` en el mismo navegador, al ent
 
 1. Sube el código a GitHub (ver abajo).
 2. En [vercel.com/new](https://vercel.com/new), importa el repo `bodybuilding-tracker`.
-3. Añade las mismas variables `NEXT_PUBLIC_SUPABASE_*` en **Environment Variables**.
+3. Añade las mismas variables `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en **Environment Variables**.
 4. Deploy. Copia la URL de producción y actualízala en Supabase (URL Configuration).
 
 ## 5. Publicar en GitHub

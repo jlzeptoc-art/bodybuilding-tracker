@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { programNotes as notesEn, warmupContent as warmupEn } from "@/lib/i18n/notes-en";
 import { programNotes as notesEs, warmupContent as warmupEs } from "@/lib/i18n/notes-es";
 import { getLocalizedWeekDays, blockLabelForWeek } from "@/lib/week-utils";
+import { getLink } from "@/lib/program-data";
 import { loadVal } from "@/lib/storage";
 import {
   clearAllData,
@@ -115,6 +116,18 @@ export function TrackerApp({ userId }: TrackerAppProps) {
 
   const getDayIndex = (week: number) => dayIndexByWeek[week] ?? 0;
 
+  function linkText(text: string) {
+    const url = getLink(text);
+    if (url) {
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-[var(--link)] underline">
+          {text}
+        </a>
+      );
+    }
+    return text;
+  }
+
   const setDayIndex = (week: number, index: number) => {
     setDayIndexByWeek((prev) => ({ ...prev, [week]: index }));
   };
@@ -153,7 +166,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
         >
           {t("nav.warmup")}
         </button>
-        <span className="nav-tab block-header">│ {t("nav.foundation")}</span>
+        <span className="nav-tab block-header nav-block-label">│ {t("nav.foundation")}</span>
         {[1, 2, 3, 4, 5].map((w) => (
           <button
             key={w}
@@ -164,7 +177,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
             {t("nav.week")} {w}
           </button>
         ))}
-        <span className="nav-tab block-header">│ {t("nav.ramping")}</span>
+        <span className="nav-tab block-header nav-block-label">│ {t("nav.ramping")}</span>
         {[6, 7, 8, 9, 10, 11, 12].map((w) => (
           <button
             key={w}
@@ -266,7 +279,7 @@ export function TrackerApp({ userId }: TrackerAppProps) {
                   {warmup.generalRows.map(([a, b], i) => (
                     <tr key={i} className="border-t border-[var(--border)]">
                       <td className="p-3 font-semibold whitespace-nowrap">{a}</td>
-                      <td className="p-3 text-[var(--text-secondary)]">{b}</td>
+                      <td className="p-3 text-[var(--text-secondary)]">{linkText(b)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -293,12 +306,12 @@ export function TrackerApp({ userId }: TrackerAppProps) {
           const block = blockLabelForWeek(week, t);
 
           return (
-            <div>
-              <div className="mb-4">
+            <div className="workout-view">
+              <div className="workout-header mb-3">
                 <div className="text-xs uppercase text-[var(--accent)] font-display font-bold">
                   {block}
                 </div>
-                <h2 className="font-display text-3xl font-black uppercase">
+                <h2 className="workout-week-title font-display font-black uppercase">
                   {t("week.title", { n: week })}
                 </h2>
                 <div className="h-1 bg-[var(--border)] rounded mt-2 overflow-hidden">
@@ -309,18 +322,32 @@ export function TrackerApp({ userId }: TrackerAppProps) {
                 </div>
               </div>
 
-              <div className="flex gap-2 overflow-x-auto pb-3 mb-4 -mx-1 px-1">
-                {days.map((d, i) => (
-                  <button
-                    key={d.key}
-                    type="button"
-                    className={`day-tab ${i === dayIdx ? "active" : ""} ${d.isRest ? "opacity-60" : ""}`}
-                    onClick={() => setDayIndex(week, i)}
-                  >
-                    {d.isRest ? `💤 ${t("day.rest")}` : d.label.split("—")[0]?.trim() || d.label}
-                  </button>
-                ))}
+              <div className="day-tabs-scroll">
+                {days.map((d, i) => {
+                  const dayNum = i < 2 ? i + 1 : i - 1;
+                  const shortLabel = d.isRest
+                    ? "💤"
+                    : `D${dayNum}`;
+                  return (
+                    <button
+                      key={d.key}
+                      type="button"
+                      className={`day-tab ${i === dayIdx ? "active" : ""} ${d.isRest ? "rest-tab" : ""}`}
+                      onClick={() => setDayIndex(week, i)}
+                      title={d.label}
+                    >
+                      <span className="day-tab-short">{shortLabel}</span>
+                      <span className="day-tab-full">
+                        {d.isRest ? `💤 ${t("day.rest")}` : d.label.split("—")[0]?.trim() || d.label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
+
+              {!day.isRest && (
+                <p className="workout-day-label">{day.label}</p>
+              )}
 
               {day.isRest ? (
                 <div className="info-block text-center py-12">
@@ -330,16 +357,17 @@ export function TrackerApp({ userId }: TrackerAppProps) {
                   <p className="text-[var(--text-dim)] mt-2">{t("rest.body")}</p>
                 </div>
               ) : (
-                day.exercises?.map((ex, i) => (
-                  <ExerciseBlock
-                    key={`${week}-${day.key}-${i}`}
-                    ex={ex}
-                    exerciseIndex={i}
-                    week={week}
-                    dayKey={day.key}
-                    sectionLabel={day.label}
-                  />
-                ))
+                <div className="exercise-list">
+                  {day.exercises?.map((ex, i) => (
+                    <ExerciseBlock
+                      key={`${week}-${day.key}-${i}`}
+                      ex={ex}
+                      exerciseIndex={i}
+                      week={week}
+                      dayKey={day.key}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           );

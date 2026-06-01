@@ -3,6 +3,7 @@
 import { getLink } from "@/lib/program-data";
 import type { Exercise } from "@/lib/program-data";
 import { useI18n } from "@/lib/i18n";
+import { useWeightUnit } from "@/components/WeightUnitProvider";
 import { SetInputs } from "@/components/SetInputs";
 
 type ExerciseBlockProps = {
@@ -10,7 +11,6 @@ type ExerciseBlockProps = {
   exerciseIndex: number;
   week: number;
   dayKey: string;
-  sectionLabel: string;
 };
 
 export function ExerciseBlock({
@@ -18,9 +18,9 @@ export function ExerciseBlock({
   exerciseIndex,
   week,
   dayKey,
-  sectionLabel,
 }: ExerciseBlockProps) {
   const { t } = useI18n();
+  const { unit } = useWeightUnit();
   const maxSets = parseInt(String(ex.working)) || 1;
   const link = getLink(ex.name);
 
@@ -45,18 +45,8 @@ export function ExerciseBlock({
   };
 
   return (
-    <div className="workout-section-block border border-[var(--border)] rounded-lg overflow-hidden mb-4">
-      <div className="bg-[var(--bg-row-alt)] px-4 py-2 font-display font-bold text-sm uppercase tracking-wide flex flex-wrap gap-2 items-center">
-        <span className="bg-[var(--accent)] text-white text-xs px-2 py-0.5 rounded">
-          {t("week.title", { n: week })}
-        </span>
-        <span>{sectionLabel}</span>
-        <span className="text-[10px] text-[var(--text-dim)] ml-auto font-normal normal-case">
-          {t("table.trackNote")}
-        </span>
-      </div>
-
-      <div className="exercise-cards p-3">
+    <article className="exercise-block">
+      <div className="exercise-cards">
         <div className="exercise-card">
           <div className="ex-title">{nameEl}</div>
           <div className="chips">
@@ -66,7 +56,9 @@ export function ExerciseBlock({
             <span className="chip">
               {t("card.working")}: {ex.working} × {ex.reps}
             </span>
-            <span className="chip">RPE {ex.earlyRPE} / {ex.lastRPE}</span>
+            <span className="chip">
+              RPE {ex.earlyRPE}/{ex.lastRPE}
+            </span>
             <span className="chip">{ex.rest}</span>
             {ex.technique && ex.technique !== "N/A" && (
               <span className="technique-badge">{ex.technique}</span>
@@ -81,13 +73,15 @@ export function ExerciseBlock({
             variant="card"
           />
           {(ex.sub1 || ex.sub2) && (
-            <div className="mt-3 text-xs text-[var(--text-dim)]">
-              <strong>{t("card.subs")}:</strong> {subLink(ex.sub1)} · {subLink(ex.sub2)}
+            <div className="ex-subs">
+              <strong>{t("card.subs")}</strong>
+              <div className="ex-subs-list">
+                {ex.sub1 && <span>{subLink(ex.sub1)}</span>}
+                {ex.sub2 && <span>{subLink(ex.sub2)}</span>}
+              </div>
             </div>
           )}
-          {ex.notes && (
-            <p className="mt-2 text-xs text-[var(--text-dim)] leading-relaxed">{ex.notes}</p>
-          )}
+          {ex.notes && <p className="ex-notes">{ex.notes}</p>}
         </div>
       </div>
 
@@ -112,7 +106,13 @@ export function ExerciseBlock({
             </tr>
             <tr>
               {[1, 2, 3, 4].map((n) => (
-                <th key={n}>{t("table.set", { n })}</th>
+                <th key={n}>
+                  {t("table.set", { n })}
+                  <span className="set-col-unit">
+                    {" "}
+                    ({unit}×{t("input.repsLabel")})
+                  </span>
+                </th>
               ))}
             </tr>
           </thead>
@@ -149,6 +149,6 @@ export function ExerciseBlock({
           </tbody>
         </table>
       </div>
-    </div>
+    </article>
   );
 }

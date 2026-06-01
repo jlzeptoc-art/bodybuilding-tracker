@@ -2,11 +2,14 @@
 
 import { LocaleProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { WeightUnitProvider } from "@/components/WeightUnitProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
-      <LocaleProvider>{children}</LocaleProvider>
+      <LocaleProvider>
+        <WeightUnitProvider>{children}</WeightUnitProvider>
+      </LocaleProvider>
     </ThemeProvider>
   );
 }

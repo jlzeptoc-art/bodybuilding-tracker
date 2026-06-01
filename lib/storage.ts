@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 
 const LOCAL_KEY = "bts_tracker";
 const LOCAL_MIGRATED_KEY = "bts_tracker_migrated";
