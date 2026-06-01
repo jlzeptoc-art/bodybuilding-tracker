@@ -31,12 +31,14 @@ function WeightField({
   className,
   unit,
   placeholder,
+  ariaLabel,
   defaultValue,
   onChange,
 }: {
   className: string;
   unit: string;
   placeholder: string;
+  ariaLabel: string;
   defaultValue: string;
   onChange: (value: string) => void;
 }) {
@@ -49,7 +51,7 @@ function WeightField({
         placeholder={placeholder}
         defaultValue={defaultValue}
         onChange={(e) => onChange(e.target.value)}
-        aria-label={placeholder}
+        aria-label={ariaLabel}
       />
       <span className="set-unit" aria-hidden>
         {unit}
@@ -74,6 +76,8 @@ export function SetInputs({
   const rows = [];
   for (let s = 1; s <= 4; s++) {
     const storageKey = `w${week}_${dayKey}_${exerciseIndex}_s${s}`;
+    const weightLabel = t("input.weightAria", { n: s });
+    const repsLabel = t("input.repsAria", { n: s });
     const wVal = loadVal(`${storageKey}_w`);
     const rVal = loadVal(`${storageKey}_r`);
     const isLastSet = s === maxSets;
@@ -92,6 +96,7 @@ export function SetInputs({
               className="set-input-mobile set-input-wt"
               unit={unit}
               placeholder={weightPh}
+              ariaLabel={weightLabel}
               defaultValue={wVal}
               onChange={(v) => {
                 saveVal(`${storageKey}_w`, v);
@@ -107,6 +112,7 @@ export function SetInputs({
                 type="text"
                 inputMode="numeric"
                 placeholder={t("input.reps")}
+                aria-label={repsLabel}
                 defaultValue={rVal}
                 onChange={(e) => {
                   saveVal(`${storageKey}_r`, e.target.value);
@@ -138,6 +144,7 @@ export function SetInputs({
                 className={`set-input ${isLastSet ? "last-set-input" : ""}`}
                 unit={unit}
                 placeholder={weightPh}
+                ariaLabel={weightLabel}
                 defaultValue={wVal}
                 onChange={(v) => {
                   saveVal(`${storageKey}_w`, v);
@@ -149,6 +156,7 @@ export function SetInputs({
                 className={`set-input ${isLastSet ? "last-set-input" : ""}`}
                 type="text"
                 placeholder={t("input.reps")}
+                aria-label={repsLabel}
                 defaultValue={rVal}
                 onChange={(e) => {
                   saveVal(`${storageKey}_r`, e.target.value);

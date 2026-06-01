@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/components/ThemeProvider";
 import { useWeightUnit } from "@/components/WeightUnitProvider";
 import { useUiSettings } from "@/components/UiSettingsProvider";
+import { flushSave } from "@/lib/storage";
 
 type HeaderProps = {
   saveStatus: string;
@@ -30,6 +31,7 @@ export function Header({ saveStatus, onReset, isGuest = false }: HeaderProps) {
       return;
     }
 
+    await flushSave();
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
@@ -85,7 +87,8 @@ export function Header({ saveStatus, onReset, isGuest = false }: HeaderProps) {
             type="button"
             className="icon-btn"
             onClick={() => setLocale(locale === "en" ? "es" : "en")}
-            aria-label="Language"
+            aria-label={t("lang.toggle")}
+            title={t("lang.toggle")}
           >
             {locale === "en" ? "ES" : "EN"}
           </button>
@@ -93,8 +96,8 @@ export function Header({ saveStatus, onReset, isGuest = false }: HeaderProps) {
             type="button"
             className="icon-btn"
             onClick={cycleMode}
-            aria-label="Theme"
-            title={mode}
+            aria-label={t("theme.toggle")}
+            title={t(`theme.${mode}`)}
           >
             {themeIcon}
           </button>

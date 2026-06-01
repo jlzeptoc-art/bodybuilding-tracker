@@ -15,6 +15,7 @@ import {
   importLocalLegacy,
   loadGuestData,
   loadFromSupabase,
+  setOnSaveError,
   setOnSaved,
   setStorageUser,
   wasLocalMigrated,
@@ -31,7 +32,7 @@ type SectionKey = "overview" | "notes" | "warmup" | `week-${number}`;
 export function TrackerApp({ userId }: TrackerAppProps) {
   const { t, locale } = useI18n();
   const [section, setSection] = useState<SectionKey>("overview");
-  const [saveStatusKey, setSaveStatusKey] = useState<"auto" | "saved">("auto");
+  const [saveStatusKey, setSaveStatusKey] = useState<"auto" | "saved" | "error">("auto");
   const [ready, setReady] = useState(false);
   const [dayIndexByWeek, setDayIndexByWeek] = useState<Record<number, number>>({});
   const [storageTick, setStorageTick] = useState(0);
@@ -39,7 +40,13 @@ export function TrackerApp({ userId }: TrackerAppProps) {
   const notes = locale === "es" ? notesEs : notesEn;
   const warmup = locale === "es" ? warmupEs : warmupEn;
 
-  const saveStatus = t(saveStatusKey === "saved" ? "save.saved" : "save.auto");
+  const saveStatus = t(
+    saveStatusKey === "saved"
+      ? "save.saved"
+      : saveStatusKey === "error"
+        ? "save.error"
+        : "save.auto"
+  );
 
   useEffect(() => {
     const onUpdate = () => setStorageTick((n) => n + 1);
@@ -52,6 +59,9 @@ export function TrackerApp({ userId }: TrackerAppProps) {
     setOnSaved(() => {
       setSaveStatusKey("saved");
       setTimeout(() => setSaveStatusKey("auto"), 1200);
+    });
+    setOnSaveError(() => {
+      setSaveStatusKey("error");
     });
 
     (async () => {

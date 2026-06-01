@@ -87,6 +87,9 @@ export function AuthForm({ mode }: AuthFormProps) {
     router.push("/tracker");
   }
 
+  const usernameId = `${mode}-username`;
+  const passwordId = `${mode}-password`;
+
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -96,10 +99,14 @@ export function AuthForm({ mode }: AuthFormProps) {
         <p className="text-sm text-[var(--text-dim)] mb-6">{t("app.subtitle")}</p>
 
         <form onSubmit={handleSubmit}>
-          <label className="text-xs uppercase font-display font-bold text-[var(--text-dim)]">
+          <label
+            className="text-xs uppercase font-display font-bold text-[var(--text-dim)]"
+            htmlFor={usernameId}
+          >
             {t("auth.username")}
           </label>
           <input
+            id={usernameId}
             type="text"
             required
             value={username}
@@ -115,10 +122,14 @@ export function AuthForm({ mode }: AuthFormProps) {
             <p className="text-xs text-[var(--text-dim)] mb-3 -mt-1">{t("auth.usernameHint")}</p>
           )}
 
-          <label className="text-xs uppercase font-display font-bold text-[var(--text-dim)]">
+          <label
+            className="text-xs uppercase font-display font-bold text-[var(--text-dim)]"
+            htmlFor={passwordId}
+          >
             {t("auth.password")}
           </label>
           <input
+            id={passwordId}
             type="password"
             required
             minLength={6}

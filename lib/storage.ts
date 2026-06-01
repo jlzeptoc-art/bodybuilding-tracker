@@ -10,6 +10,7 @@ let cache: Record<string, string> = {};
 let userId: string | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let onSaved: (() => void) | null = null;
+let onSaveError: ((error: unknown) => void) | null = null;
 let dirty = false;
 
 export function setStorageUser(id: string | null) {
@@ -18,6 +19,10 @@ export function setStorageUser(id: string | null) {
 
 export function setOnSaved(cb: () => void) {
   onSaved = cb;
+}
+
+export function setOnSaveError(cb: (error: unknown) => void) {
+  onSaveError = cb;
 }
 
 export function getCache(): Record<string, string> {
@@ -79,24 +84,26 @@ async function persist() {
   if (!dirty) return;
   dirty = false;
 
-  if (!userId) {
-    localStorage.setItem(GUEST_KEY, JSON.stringify(cache));
-    onSaved?.();
-    return;
-  }
+  try {
+    if (!userId) {
+      localStorage.setItem(GUEST_KEY, JSON.stringify(cache));
+      onSaved?.();
+      return;
+    }
 
-  const supabase = createClient();
-  const { error } = await supabase.from("tracker_data").upsert({
-    user_id: userId,
-    data: cache,
-    updated_at: new Date().toISOString(),
-  });
-  if (error) {
+    const supabase = createClient();
+    const { error } = await supabase.from("tracker_data").upsert({
+      user_id: userId,
+      data: cache,
+      updated_at: new Date().toISOString(),
+    });
+    if (error) throw error;
+    onSaved?.();
+  } catch (error) {
     dirty = true;
     console.error("Save failed:", error);
-    return;
+    onSaveError?.(error);
   }
-  onSaved?.();
 }
 
 export async function flushSave() {
